@@ -4,20 +4,21 @@ from django.utils.text import slugify
 from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
-from apps.users.constansts import ALCO, ALLERGIES, BLOOD_TYPE, \
-    GENDER, ROLES, SMOKE, SPECS
+from apps.users.constansts import (
+    ALLERGIES,
+    BLOOD_TYPE, 
+    GENDER,
+    ROLES, 
+    SPECS,
+)
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    mobile = models.CharField(max_length=11, unique=True)
-    role = models.CharField(max_length=255, choices=ROLES)
-    gender = models.CharField(max_length=255, choices=GENDER, default='Male')
     date_joined = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True)
-    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -28,15 +29,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def save(self, *args, **kwargs):
-        slug_data = self.email.split('@')[0]
-        self.slug = slugify(slug_data)
-        return super(CustomUser, self).save(*args, **kwargs)
-
 
 class PatientProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='patient', null=True)
-    address = models.CharField(max_length=255, blank=True)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='patient')
+    weight = models.FloatField(blank=True, null=True)
+    height = models.IntegerField(blank=True, null=True)
+    gender = models.CharField(blank=True, null=True, max_length=255, choices=SPECS)
+    age = models.IntegerField(blank=True, null=True)
+    birthday = models.DateField(blank=True, null=True)
+    role = models.CharField(max_length=255, choices=ROLES, default='P', blank=True, null=True)
+    mobile = models.CharField(max_length=11, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
@@ -44,17 +46,19 @@ class PatientProfile(models.Model):
         verbose_name_plural = "patients"
 
     def __str__(self):
-        return self.user.first_name
+        return f"Patient: {self.user.first_name}"
+    
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.user.slug)
+        slug_data = self.user.email.split('@')[0]
+        self.slug = slugify(slug_data)
         return super(PatientProfile, self).save(*args, **kwargs)
 
 
 class DoctorProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor', null=True)
-    spec = models.CharField(max_length=255, choices=SPECS)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor')
     patients = models.ManyToManyField(PatientProfile, related_name='patients')
+    role = models.CharField(max_length=255, choices=ROLES, default='D', null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
@@ -65,23 +69,19 @@ class DoctorProfile(models.Model):
         return self.user.first_name
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.user.slug)
+        slug_data = self.user.email.split('@')[0]
+        self.slug = slugify(slug_data)
         return super(DoctorProfile, self).save(*args, **kwargs)
 
 
 class PatientCard(models.Model):
-    doctor_owners = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='doctor_owner', null=True)
     patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card', null=True)
-    height = models.IntegerField(blank=False)
-    weight = models.IntegerField(blank=False)
-    age = models.IntegerField(null=True)
-    is_smoking = models.CharField(choices=SMOKE, default='No')
-    is_alcohol = models.CharField(choices=ALCO, default='No')
-    card_id = models.UUIDField(primary_key=False,
-                               default=uuid.uuid4, editable=False, unique=True)
     blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
-    allergies = models.CharField(max_length=255, choices=ALLERGIES)
-    ex_conditions = models.TextField()
+    allergies = models.JSONField(max_length=255, choices=ALLERGIES)
+    abnormal_conditions = models.TextField()
+    is_smoking = models.BooleanField(default=False)
+    is_alcohol = models.BooleanField(default=False)
+    
 
     def __str__(self):
         return self.patient.user.first_name
