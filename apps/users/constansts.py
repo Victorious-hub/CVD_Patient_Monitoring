@@ -7,8 +7,8 @@ ROLES = (
 )
 
 SPECS = (
-    ('D', _('Dantist')),
-    ('C', _('Cardio')),
+    ('CS', _('Cardio Surgeon')),
+    ('C', _('Cardiologist')),
 )
 
 BLOOD_TYPE = (

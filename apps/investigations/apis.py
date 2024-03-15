@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework import serializers
 from apps.users.permissions import IsDoctor
 
-from apps.users.selectors import patient_list
+#from apps.users.selectors import patient_list
 
 
 class PatientBloodTestCreateAPI(views.APIView):
@@ -64,7 +64,7 @@ class PatientBloodTestListAPI(views.APIView):
         white_blood_cells = serializers.FloatField()
         red_blood_cells = serializers.FloatField()
         platelets = serializers.FloatField()
-        patient_blood_test = serializers.PrimaryKeyRelatedField(queryset=patient_list, many=False)
+        #patient_blood_test = serializers.PrimaryKeyRelatedField(queryset=patient_list, many=False)
 
         class Meta:
             fields = '__all__'
@@ -86,7 +86,7 @@ class PatientCholesterolTestListAPI(views.APIView):
         hdl_cholesterol = serializers.FloatField()
         ldl_cholesterol = serializers.FloatField()
         triglycerides = serializers.FloatField()
-        patient_chol_test = serializers.PrimaryKeyRelatedField(queryset=patient_list, many=False)
+        #patient_chol_test = serializers.PrimaryKeyRelatedField(queryset=patient_list, many=False)
 
         class Meta:
             fields = '__all__'
