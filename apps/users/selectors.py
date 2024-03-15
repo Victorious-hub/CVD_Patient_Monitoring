@@ -1,38 +1,51 @@
-from typing import Iterable
+from datetime import datetime
+from typing import Iterable, List
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from apps.users.models import (
+    CustomUser,
     DoctorProfile,
     PatientCard,
     PatientProfile
 )
+from abc import ABC, abstractmethod
+
+class BaseSelectorService(ABC):
+
+    @abstractmethod
+    def list(self):
+        pass
+
+    @abstractmethod
+    def get(self, slug):
+        pass
 
 
-@transaction.atomic
-def patient_list() -> Iterable[PatientProfile]:
-    patients = PatientProfile.objects.all()
-    return patients
+class PatientSelector(BaseSelectorService):
+    @transaction.atomic
+    def list(self) -> Iterable[PatientProfile]:
+        patients = PatientProfile.objects.all()
+        return patients
+    
+
+    @transaction.atomic
+    def get(self, slug: str) -> PatientProfile:
+        patient = get_object_or_404(PatientProfile, slug=slug)
+        return patient
 
 
-@transaction.atomic
-def doctor_list() -> Iterable[DoctorProfile]:
-    doctors = DoctorProfile.objects.all()
-    return doctors
+class DoctorSelector(BaseSelectorService):
+    @transaction.atomic
+    def list(self) -> Iterable[DoctorProfile]:
+        doctors = DoctorProfile.objects.all()
+        return doctors
 
 
-@transaction.atomic
-def patient_get(*, slug: str) -> PatientProfile:
-    patients = PatientProfile.objects.all()
-    patient = get_object_or_404(patients, slug=slug)
-    return patient
-
-
-@transaction.atomic
-def doctor_get(*, slug: str) -> PatientProfile:
-    doctors = DoctorProfile.objects.all()
-    doctor = get_object_or_404(doctors, slug=slug)
-    return doctor
+    @transaction.atomic
+    def get(self, slug: str) -> PatientProfile:
+        doctor = get_object_or_404(DoctorProfile, slug=slug)
+        return doctor
 
 
 @transaction.atomic

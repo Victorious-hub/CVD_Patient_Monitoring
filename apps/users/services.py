@@ -1,197 +1,200 @@
+from datetime import datetime
 from typing import List
 import re
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from apps.users.models import DoctorProfile, PatientCard, PatientProfile, CustomUser
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password, check_password
 from apps.users.exceptions import DoctorNotFound, EmailException, MobileException, \
     PasswordLengthException, PatientCardExists, PatientNotFound
+from abc import ABC, abstractmethod
 
 
-@transaction.atomic
-def patient_create(*,
-                   user: dict,
-                   address: str
-                   ) -> PatientProfile:
-    pattern = r'^\+\d{10}$'
-
-    if len(user['password']) < 8:
-        raise PasswordLengthException
-
-    if CustomUser.objects.filter(email=user['email']).exists():
-        raise EmailException
-
-    if CustomUser.objects.filter(mobile=user['mobile']).exists() or not re.match(pattern, user['mobile']):
-        raise MobileException
-
-    new_user = CustomUser.objects.create(
-        mobile=user['mobile'],
-        email=user['email'],
-        password=make_password(user['password']),
-        gender=user['gender'],
-        role=user['role'],
-        first_name=user['first_name'],
-        last_name=user['last_name'],
-    )
-
-    obj = PatientProfile.objects.create(user=new_user, address=address)
-    obj.full_clean()
-    obj.save()
-
-    return obj
+class PatientService:
+    def __init__(self, 
+                user: CustomUser,
+                weight: float = None, 
+                height: int = None,
+                gender: str = None,
+                birthday: datetime = None,
+                age: int = None,
+                mobile: str = None,
+                new_password: str = None,
+                password_confirm: str = None,
+                slug: str = None,
+                ):
+        self.mobile = mobile
+        self.user = user
+        self.weight = weight
+        self.height = height
+        self.age = age
+        self.birthday = birthday
+        self.gender = gender
+        self.new_password = new_password
+        self.password_confirm = password_confirm
+        self.slug = slug
 
 
-@transaction.atomic
-def patient_update(*,
-                   slug: str,
-                   user: dict,
-                   address: str
-                   ) -> PatientProfile:
-    pattern = r'^\+\d{10}$'
-    patients = PatientProfile.objects.all()
-    patient = get_object_or_404(patients, slug=slug)
+    @transaction.atomic
+    def create(self) -> PatientProfile:
 
-    if CustomUser.objects.filter(email=user['email']).exists() and patient.slug != slug:
-        raise EmailException
+        if len(self.user['password']) < 8:
+            raise PasswordLengthException
 
-    if CustomUser.objects.filter(mobile=user['mobile']).exists() and patient.slug != slug \
-            or not re.match(pattern, user['mobile']):
-        raise MobileException
+        if CustomUser.objects.filter(email=self.user['email']).exists():
+            raise EmailException
+        
+        new_user = CustomUser.objects.create(
+            first_name=self.user['first_name'],
+            last_name=self.user['last_name'],
+            password=make_password(self.user['password']),
+            email=self.user['email'],
+        )
 
-    curr_patient = patient.user
+        obj = PatientProfile.objects.create(user=new_user)
+        obj.full_clean()
+        obj.save()
 
-    curr_patient.email = user['email']
-    curr_patient.mobile = user['mobile']
-    curr_patient.gender = user['gender']
-    curr_patient.role = user['role']
-    curr_patient.first_name = user['first_name']
-    curr_patient.last_name = user['last_name']
-    curr_patient.save()
+        return obj
+    
+    @transaction.atomic
+    def data_update(self, slug: str) -> PatientProfile:
+        patient = get_object_or_404(PatientProfile, slug=slug)
+        curr_patient = patient.user
+        
+        curr_patient.first_name = self.user['first_name']
+        curr_patient.last_name = self.user['last_name']
+        curr_patient.save()
 
-    patient.address = address
-    patient.save()
+        patient.age = self.age
+        patient.height = self.height
+        patient.weight = self.weight
+        patient.gender = self.gender
+        patient.birthday = self.birthday
 
-    return patient
+        patient.save()
 
+        return patient
+    
+    @transaction.atomic
+    def contact_update(self, slug: str) -> PatientProfile:
+        patient = get_object_or_404(PatientProfile, slug=slug)
+        pattern = r'^\+\d{10}$'
+        curr_patient = patient.user
+        
+        if CustomUser.objects.filter(email=self.user['email']).exists() and patient.slug != slug:
+            raise EmailException
+        
+        if PatientProfile.objects.filter(mobile=self.mobile).exists() and patient.slug != slug \
+            or not re.match(pattern, self.mobile):
+            raise MobileException
+        
+        patient.mobile = self.mobile
+        curr_patient.email = self.user['email']
+        curr_patient.save()
+        patient.save()
 
-@transaction.atomic
-def doctor_create(*,
-                  user: dict,
-                  spec: str
-                  ) -> DoctorProfile:
-    pattern = r'^\+\d{10}$'
-
-    if len(user['password']) < 8:
-        raise PasswordLengthException
-
-    if CustomUser.objects.filter(email=user['email']).exists():
-        raise EmailException
-
-    if CustomUser.objects.filter(mobile=user['mobile']).exists() or not re.match(pattern, user['mobile']):
-        raise MobileException
-
-    new_user = CustomUser.objects.create(
-        mobile=user['mobile'],
-        email=user['email'],
-        password=make_password(user['password']),
-        gender=user['gender'],
-        role=user['role'],
-        first_name=user['first_name'],
-        last_name=user['last_name'],
-    )
-
-    obj = DoctorProfile.objects.create(user=new_user, spec=spec)
-    obj.full_clean()
-    obj.save()
-
-    return obj
+        return patient
 
 
-@transaction.atomic
-def doctor_update(*,
-                  slug: str,
-                  user: dict,
-                  ) -> DoctorProfile:
-    pattern = r'^\+\d{10}$'
-    doctors = DoctorProfile.objects.all()
-    doctor = get_object_or_404(doctors, slug=slug)
+class DoctorService:
+    def __init__(self, 
+                user: CustomUser = None,
+                patients: List[int] = None,
+                ):
+        self.patients = patients
+        self.user = user
+    
+    @transaction.atomic
+    def create(self) -> DoctorProfile:
+        
+        if len(self.user['password']) < 8:
+            raise PasswordLengthException
 
-    if CustomUser.objects.filter(email=user['email']).exists() and doctor.slug != slug:
-        raise EmailException
-
-    if CustomUser.objects.filter(mobile=user['mobile']).exists() and doctor.slug != slug \
-            or not re.match(pattern, user['mobile']):
-        raise MobileException
-
-    curr_doctor = doctor.user
-
-    curr_doctor.email = user['email']
-    curr_doctor.mobile = user['mobile']
-    curr_doctor.gender = user['gender']
-    curr_doctor.first_name = user['first_name']
-    curr_doctor.last_name = user['last_name']
-    curr_doctor.save()
-
-    doctor.save()
-
-    return doctor
+        if CustomUser.objects.filter(email=self.user['email']).exists():
+            raise EmailException
 
 
-@transaction.atomic
-def doctor_patient_add(*,
-                       slug: str,
-                       patients: int | List[int]
-                       ) -> DoctorProfile:
-    doctors = DoctorProfile.objects.all()
-    doctor = get_object_or_404(doctors, slug=slug)
+        new_user = CustomUser.objects.create(
+            email=self.user['email'],
+            password=make_password(self.user['password']),
+            first_name=self.user['first_name'],
+            last_name=self.user['last_name'],
+        )
 
-    doctor.patients.add(*patients)  # unpacking
-    doctor.save()
+        obj = DoctorProfile.objects.create(user=new_user)
+        obj.full_clean()
+        obj.save()
 
-    return doctor
+        return obj
+    
+
+    @transaction.atomic
+    def contact_update(self, slug: str) -> DoctorProfile:
+        doctor = get_object_or_404(DoctorProfile, slug=slug)
+        
+        if CustomUser.objects.filter(email=self.user['email']).exists() and doctor.slug != slug:
+            raise EmailException
+                
+        doctor.user.email = self.user['email']
+        doctor.user.save()
+
+        return doctor
 
 
-@transaction.atomic
-def card_create(*,
-                id: int,
-                patient: int,
-                height: int,
-                weight: int,
-                blood_type: dict,
-                allergies: dict,
-                ex_conditions: str,
-                is_smoking: str,
-                is_alcohol: str,
-                age: int
-                ) -> PatientCard:
+    @transaction.atomic
+    def patient_list_update(self,
+                        slug: str,
+                        ) -> DoctorProfile:
+        doctor = get_object_or_404(DoctorProfile, slug=slug)
 
-    if not DoctorProfile.objects.filter(id=id).exists():
-        raise DoctorNotFound
+        doctor.patients.add(*self.patients)  # unpacking
+        doctor.save()
 
-    if not PatientProfile.objects.filter(id=patient).exists():
-        raise PatientNotFound
+        return doctor
+    
+    @transaction.atomic
+    def card_create(*,
+                    id: int,
+                    patient: int,
+                    height: int,
+                    weight: int,
+                    blood_type: dict,
+                    allergies: dict,
+                    ex_conditions: str,
+                    is_smoking: str,
+                    is_alcohol: str,
+                    age: int
+                    ) -> PatientCard:
 
-    if PatientCard.objects.filter(id=patient).exists():
-        raise PatientCardExists
+        if not DoctorProfile.objects.filter(id=id).exists():
+            raise DoctorNotFound
 
-    curr_doctor = DoctorProfile.objects.get(id=id)
-    curr_patient = PatientProfile.objects.get(id=patient)
+        if not PatientProfile.objects.filter(id=patient).exists():
+            raise PatientNotFound
 
-    patient_card = PatientCard.objects.create(
-        doctor_owners=curr_doctor,
-        patient=curr_patient,
-        height=height,
-        weight=weight,
-        blood_type=blood_type,
-        allergies=allergies,
-        ex_conditions=ex_conditions,
-        is_smoking=is_smoking,
-        is_alcohol=is_alcohol,
-        age=age
-    )
+        if PatientCard.objects.filter(id=patient).exists():
+            raise PatientCardExists
 
-    patient_card.full_clean()
-    patient_card.save()
+        curr_doctor = DoctorProfile.objects.get(id=id)
+        curr_patient = PatientProfile.objects.get(id=patient)
 
-    return patient_card
+        patient_card = PatientCard.objects.create(
+            doctor_owners=curr_doctor,
+            patient=curr_patient,
+            height=height,
+            weight=weight,
+            blood_type=blood_type,
+            allergies=allergies,
+            ex_conditions=ex_conditions,
+            is_smoking=is_smoking,
+            is_alcohol=is_alcohol,
+            age=age
+        )
+
+        patient_card.full_clean()
+        patient_card.save()
+
+        return patient_card
+    
