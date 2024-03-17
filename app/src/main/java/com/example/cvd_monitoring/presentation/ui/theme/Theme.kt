@@ -1,4 +1,4 @@
-package com.example.cvd_monitoring.ui.theme
+package com.example.cvd_monitoring.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

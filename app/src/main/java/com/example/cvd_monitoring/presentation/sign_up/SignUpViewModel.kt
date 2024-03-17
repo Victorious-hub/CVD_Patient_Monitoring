@@ -10,10 +10,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.cvd_monitoring.common.TextFieldState
 import com.example.cvd_monitoring.domain.model.users.CreateUserRequest
 import com.example.cvd_monitoring.domain.model.users.User
+import com.example.cvd_monitoring.domain.use_case.sign_sup.CreatePatientUseCase
 import com.example.cvd_monitoring.network.PatientApiService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SignUpViewModel : ViewModel() {
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val createPatientUseCase: CreatePatientUseCase
+) : ViewModel(){
     private val _firstNameState = mutableStateOf(TextFieldState())
     val firstNameState: State<TextFieldState> = _firstNameState
 
@@ -44,19 +50,20 @@ class SignUpViewModel : ViewModel() {
 
     var errorMessage: String by mutableStateOf("")
 
-    fun createPatient(user: User) {
+    fun createPatient() {
+        val firstName = firstNameState.value.text
+        val lastName = lastNameState.value.text
+        val email = emailState.value.text
+        val password = passwordState.value.text
+
         viewModelScope.launch {
-            val apiService = PatientApiService.getInstance()
             try {
-                Log.d("SignUpViewModel", "Sign up successful: ${user.first_name}")
-                val createUserRequest = CreateUserRequest(user)
-                val patientUser = apiService.createPatient(createUserRequest)
-                Log.d("SignUpViewModel", "Sign up successful: $patientUser")
+                val createdUser = createPatientUseCase(firstName, lastName, email, password)
+                Log.d("SignUpViewModel", "Sign up successful: $createdUser")
             } catch (e: Exception) {
                 errorMessage = e.message.toString()
-                Log.e("SignUpViewModel", "Sign up error: $user", e)
+                Log.e("SignUpViewModel", "Sign up error: $errorMessage", e)
             }
         }
     }
-
 }

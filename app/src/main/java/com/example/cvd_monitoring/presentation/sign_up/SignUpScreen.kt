@@ -40,18 +40,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.cvd_monitoring.R
 import com.example.cvd_monitoring.domain.model.users.User
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpPage() {
+fun SignUpScreen(viewModel: SignUpViewModel = hiltViewModel()) {
     val image = painterResource(R.drawable.heart)
-    val firstNameState = remember { mutableStateOf("") }
-    val lastNameState = remember { mutableStateOf("") }
-    val emailState = remember { mutableStateOf("") }
-    val passwordState = remember { mutableStateOf("") }
+    val firstNameState = viewModel.firstNameState.value
+    val lastNameState = viewModel.lastNameState.value
+    val emailState = viewModel.emailState.value
+    val passwordState = viewModel.passwordState.value
     val isFocused by remember { mutableStateOf(false) }
     var passwordVisibility by remember { mutableStateOf(false) }
     val icon = if (passwordVisibility) painterResource(id = R.drawable.visible1)
@@ -100,8 +101,8 @@ fun SignUpPage() {
             )
         )
         TextField(
-            value = firstNameState.value,
-            onValueChange = { firstNameState.value = it },
+            value = firstNameState.text,
+            onValueChange = { viewModel.setFirstNameValue(it) },
             label = {
                 Text(
                     text = "First Name",
@@ -118,8 +119,8 @@ fun SignUpPage() {
             ),
         )
         TextField(
-            value = lastNameState.value,
-            onValueChange = { lastNameState.value = it },
+            value = lastNameState.text,
+            onValueChange = { viewModel.setLastNameValue(it) },
             label = {
                 Text(
                     text = "Last Name",
@@ -136,8 +137,8 @@ fun SignUpPage() {
             ),
         )
         TextField(
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
+            value = emailState.text,
+            onValueChange = { viewModel.setEmailValue(it) },
             label = {
                 Text(
                     text = "Email",
@@ -155,8 +156,8 @@ fun SignUpPage() {
         )
 
         TextField(
-            value = passwordState.value,
-            onValueChange = { passwordState.value = it },
+            value = passwordState.text,
+            onValueChange = { viewModel.setPasswordValue(it) },
             label = {
                 Text(
                     text = "Password",
@@ -186,7 +187,7 @@ fun SignUpPage() {
         )
         Button(
             onClick = {
-
+                viewModel.createPatient()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(

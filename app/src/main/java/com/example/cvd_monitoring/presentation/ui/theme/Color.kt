@@ -1,4 +1,4 @@
-package com.example.cvd_monitoring.ui.theme
+package com.example.cvd_monitoring.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

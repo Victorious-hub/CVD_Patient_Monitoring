@@ -9,20 +9,20 @@ import com.example.cvd_monitoring.domain.model.users.Patient
 import com.example.cvd_monitoring.network.PatientApiService
 import kotlinx.coroutines.launch
 
-class PatientListViewModel : ViewModel() {
-
-    var patientListResponse:List<Patient> by mutableStateOf(listOf())
-    private var errorMessage: String by mutableStateOf("")
-    fun getPatientList() {
-        viewModelScope.launch {
-            val apiService = PatientApiService.getInstance()
-            try {
-                val patientList = apiService.getPatientList()
-                patientListResponse = patientList
-            }
-            catch (e: Exception) {
-                errorMessage = e.message.toString()
-            }
-        }
-    }
-}
+//class PatientListViewModel : ViewModel() {
+//
+//    var patientListResponse:List<Patient> by mutableStateOf(listOf())
+//    private var errorMessage: String by mutableStateOf("")
+//    fun getPatientList() {
+//        viewModelScope.launch {
+//            val apiService = PatientApiService.getInstance()
+//            try {
+//                val patientList = apiService.getPatientList()
+//                patientListResponse = patientList
+//            }
+//            catch (e: Exception) {
+//                errorMessage = e.message.toString()
+//            }
+//        }
+//    }
+//}

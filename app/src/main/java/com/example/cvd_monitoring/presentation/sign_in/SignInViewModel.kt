@@ -11,10 +11,18 @@ import com.example.cvd_monitoring.common.TextFieldState
 import com.example.cvd_monitoring.domain.model.users.Auth
 import com.example.cvd_monitoring.domain.model.users.CreateUserRequest
 import com.example.cvd_monitoring.domain.model.users.User
+import com.example.cvd_monitoring.domain.use_case.authenticate.UserAuthenticationUseCase
+import com.example.cvd_monitoring.domain.use_case.sign_sup.CreatePatientUseCase
 import com.example.cvd_monitoring.network.PatientApiService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SignInViewModel : ViewModel() {
+
+@HiltViewModel
+class SignInViewModel @Inject constructor(
+    private val userAuthenticationUseCase: UserAuthenticationUseCase
+) : ViewModel(){
     private val _emailState = mutableStateOf(TextFieldState())
     val emailState: State<TextFieldState> = _emailState
 
@@ -31,11 +39,13 @@ class SignInViewModel : ViewModel() {
 
     var errorMessage: String by mutableStateOf("")
 
-    fun authenticateUser(authUser: Auth) {
+    fun authenticateUser() {
+        val email = emailState.value.text
+        val password = passwordState.value.text
+
         viewModelScope.launch {
-            val apiService = PatientApiService.getInstance()
             try {
-                val patientUser = apiService.authenticateUser(authUser)
+                val patientUser = userAuthenticationUseCase(email, password)
                 Log.d("SignInViewModel", "Sign in successful: $patientUser")
             } catch (e: Exception) {
                 errorMessage = e.message.toString()

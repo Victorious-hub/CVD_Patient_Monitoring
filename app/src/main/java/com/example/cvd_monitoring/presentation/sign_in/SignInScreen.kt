@@ -40,20 +40,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.cvd_monitoring.R
 import com.example.cvd_monitoring.domain.model.users.Auth
+import com.example.cvd_monitoring.presentation.sign_up.SignUpViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInPage() {
+fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
     val image = painterResource(R.drawable.heart)
-    val emailState = remember {
-        mutableStateOf("")
-    }
-    val passwordState = remember {
-        mutableStateOf("")
-    }
+    val emailState = viewModel.emailState.value
+    val passwordState = viewModel.passwordState.value
     var passwordVisibility by remember {
         mutableStateOf(false)
     }
@@ -103,8 +101,8 @@ fun SignInPage() {
             )
         )
         TextField(
-            value = emailState.value,
-            onValueChange = { emailState.value = it },
+            value = emailState.text,
+            onValueChange = { viewModel.setEmailValue(it) },
             label = {
                 Text(
                     text = "Email",
@@ -122,8 +120,8 @@ fun SignInPage() {
         )
 
         TextField(
-            value = passwordState.value,
-            onValueChange = { passwordState.value = it },
+            value = passwordState.text,
+            onValueChange = { viewModel.setPasswordValue(it) },
             label = {
                 Text(
                     text = "Password",
@@ -156,7 +154,7 @@ fun SignInPage() {
 
         Button(
             onClick = {
-
+                viewModel.authenticateUser()
             },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
