@@ -4,8 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -36,11 +38,12 @@ fun WelcomeScreen() {
             modifier = Modifier
                 .fillMaxWidth(2f)
                 .align(Alignment.Center)
-                .padding(bottom = 300.dp),
+                .padding(bottom = 350.dp),
             painter = image,
             contentDescription = null
 
         )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -49,8 +52,8 @@ fun WelcomeScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "CVD Tracker helps you to make your life better",
-                modifier = Modifier.padding(bottom = 32.dp),
+                text = "CVD Monitoring Tracker",
+                modifier = Modifier.padding(bottom = 100.dp),
                 style = TextStyle(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
@@ -59,18 +62,34 @@ fun WelcomeScreen() {
                 )
             )
 
+        }
+        Column {
             Button(
-                onClick = {
-
-                },
-                modifier = Modifier.fillMaxWidth(),
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 400.dp), // Add bottom padding to move the button down
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFa5051f),
                     contentColor = Color.White
                 ),
-                shape = RoundedCornerShape(10.dp)
+                shape = RoundedCornerShape(20.dp)
             ) {
-                Text("Get Started")
+                Text("Sign Up")
+            }
+
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp), // Add bottom padding to move the button down
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFa5051f),
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Text("Sign In")
             }
         }
     }

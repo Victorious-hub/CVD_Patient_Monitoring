@@ -9,9 +9,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -21,11 +23,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,10 +56,10 @@ import com.example.cvd_monitoring.domain.model.users.Patient
 import com.example.cvd_monitoring.domain.model.users.User
 import com.example.cvd_monitoring.presentation.patient_list.PatientListViewModel
 import com.example.cvd_monitoring.presentation.patient_list.components.PatientListItem
-import com.example.cvd_monitoring.presentation.sign_in.SignInScreen
 import com.example.cvd_monitoring.presentation.sign_in.SignInViewModel
 import com.example.cvd_monitoring.presentation.sign_up.SignUpScreen
 import com.example.cvd_monitoring.presentation.sign_up.SignUpViewModel
+import org.w3c.dom.Text
 
 class MainActivity : ComponentActivity() {
     val patientViewModel by viewModels<PatientListViewModel>()
@@ -68,62 +72,138 @@ class MainActivity : ComponentActivity() {
 //            SignUpScreen(
 //                signUpViewModel
 //            )
-            SignInScreen(
-                signInViewModel
-            )
+//            SignInScreen(
+//                signInViewModel
+//            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
-fun SignInPage() {
-    val emailState = remember {
-        mutableStateOf("")
+fun SignUpPage() {
+    val image = painterResource(R.drawable.heart)
+    val firstNameState = remember { mutableStateOf("") }
+    val lastNameState = remember { mutableStateOf("") }
+    val emailState = remember { mutableStateOf("") }
+    val passwordState = remember { mutableStateOf("") }
+    val isFocused by remember { mutableStateOf(false) }
+    var passwordVisibility by remember { mutableStateOf(false) }
+    val icon = if (passwordVisibility) painterResource(id = R.drawable.visible1)
+    else painterResource(id = R.drawable.invisible)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.25f)
+            .background(
+                color = Color(0xFFa5051f),
+                shape = RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = 80.dp,
+                    bottomEnd = 80.dp
+                )
+            )
+    ) {
+        Image(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(top = 25.dp),
+            painter = image,
+            contentDescription = null
+        )
     }
-    val passwordState = remember {
-        mutableStateOf("")
-    }
-    val password by rememberSaveable {
-        mutableStateOf("")
-    }
-    var passwordVisibility by remember {
-        mutableStateOf(false)
-    }
-    val icon = if(passwordVisibility)
-        painterResource(id = R.drawable.visible1)
-    else
-        painterResource(id = R.drawable.invisible)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(15.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
+        Spacer(modifier = Modifier.height(125.dp))
+        Text(
+            text = "Sign Up",
+            modifier = Modifier.padding(bottom = 25.dp),
+            style = TextStyle(
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontFamily = FontFamily.Monospace,
+            )
+        )
+        TextField(
+            value = firstNameState.value,
+            onValueChange = { firstNameState.value = it },
+            label = {
+                Text(
+                    text = "First Name",
+                    color = Color.Gray
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Red,
+                unfocusedIndicatorColor = if (isFocused) Color.Red else Color.Black,
+                cursorColor = Color.Red,
+            ),
+        )
+        TextField(
+            value = lastNameState.value,
+            onValueChange = { lastNameState.value = it },
+            label = {
+                Text(
+                    text = "Last Name",
+                    color = Color.Gray
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Red,
+                unfocusedIndicatorColor = if (isFocused) Color.Red else Color.Black,
+                cursorColor = Color.Red,
+            ),
+        )
         TextField(
             value = emailState.value,
             onValueChange = { emailState.value = it },
-            label = { Text("Email") },
+            label = {
+                Text(
+                    text = "Email",
+                    color = Color.Gray
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp)
-
+                .padding(bottom = 8.dp),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Red,
+                unfocusedIndicatorColor = if (isFocused) Color.Red else Color.Black,
+                cursorColor = Color.Red,
+            ),
         )
 
         TextField(
             value = passwordState.value,
             onValueChange = { passwordState.value = it },
-            label = { Text("Password") },
+            label = {
+                Text(
+                    text = "Password",
+                    color = Color.Gray
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
             trailingIcon = {
-                IconButton(onClick = {
-                    passwordVisibility = !passwordVisibility
-                }) {
+                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                     Icon(
                         painter = icon,
                         contentDescription = null
@@ -133,9 +213,13 @@ fun SignInPage() {
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
             ),
-            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation()
+            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+            colors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = Color.Red,
+                unfocusedIndicatorColor = if (isFocused) Color.Red else Color.Black,
+                cursorColor = Color.Red,
+            ),
         )
-
         Button(
             onClick = {
 
@@ -145,9 +229,9 @@ fun SignInPage() {
                 containerColor = Color(0xFFa5051f),
                 contentColor = Color.White
             ),
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(20.dp)
         ) {
-            Text("Sign In")
+            Text("Sign Up")
         }
     }
 }

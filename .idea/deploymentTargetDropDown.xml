@@ -5,7 +5,13 @@
       <entry key="SignInPage">
         <State />
       </entry>
+      <entry key="SignUpPage">
+        <State />
+      </entry>
       <entry key="WelcomePage">
+        <State />
+      </entry>
+      <entry key="WelcomeScreen">
         <State />
       </entry>
       <entry key="app">
