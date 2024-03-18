@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -95,5 +96,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+
+    implementation("io.github.raamcosta.compose-destinations:core:1.5.9-beta")
+    ksp("io.github.raamcosta.compose-destinations:ksp:1.5.9-beta")
+
+    // Datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
 }

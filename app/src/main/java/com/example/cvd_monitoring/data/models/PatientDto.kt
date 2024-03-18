@@ -23,15 +23,3 @@ data class PatientDto(
     @Json(name = "weight")
     val weight: Double
 )
-
-fun PatientDto.toPatient(): Patient {
-    return Patient(
-        age = age,
-        birthday = birthday,
-        gender = gender,
-        height = height,
-        slug = slug,
-        user = user,
-        weight = weight
-    )
-}

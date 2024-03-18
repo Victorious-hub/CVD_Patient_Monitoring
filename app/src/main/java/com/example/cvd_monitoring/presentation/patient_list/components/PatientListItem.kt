@@ -1,6 +1,8 @@
 package com.example.cvd_monitoring.presentation.patient_list.components
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,20 +23,24 @@ import androidx.compose.ui.unit.dp
 import com.example.cvd_monitoring.domain.model.users.Patient
 
 @Composable
-fun PatientListItem(patient: Patient) {
+fun PatientListItem(
+    patient: Patient,
+    onItemClick: (Patient) -> Unit
+) {
+    Log.d("PatientListViewModel", "Patient list fetched: ${patient.slug}")
     Card(
         modifier = Modifier
             .padding(8.dp, 4.dp)
             .fillMaxWidth()
-            .height(110.dp),
+            .height(160.dp),
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
             Modifier
                 .padding(4.dp)
+                .clickable { onItemClick(patient) }
                 .fillMaxSize()
         ) {
-
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier
@@ -54,6 +60,26 @@ fun PatientListItem(patient: Patient) {
                 )
                 Text(
                     text = patient.user.email,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = patient.age.toString(),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = patient.weight.toString(),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = patient.height.toString(),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = patient.slug,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

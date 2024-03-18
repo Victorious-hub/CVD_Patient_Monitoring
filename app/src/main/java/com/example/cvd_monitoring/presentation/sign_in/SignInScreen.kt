@@ -41,6 +41,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.cvd_monitoring.R
 import com.example.cvd_monitoring.domain.model.users.Auth
 import com.example.cvd_monitoring.presentation.sign_up.SignUpViewModel
@@ -48,7 +50,10 @@ import com.example.cvd_monitoring.presentation.sign_up.SignUpViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(viewModel: SignInViewModel = hiltViewModel()) {
+fun SignInScreen(
+    navController: NavHostController,
+    viewModel: SignInViewModel = hiltViewModel()
+) {
     val image = painterResource(R.drawable.heart)
     val emailState = viewModel.emailState.value
     val passwordState = viewModel.passwordState.value

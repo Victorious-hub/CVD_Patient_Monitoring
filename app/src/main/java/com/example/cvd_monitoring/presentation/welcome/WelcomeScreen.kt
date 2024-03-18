@@ -24,10 +24,15 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.cvd_monitoring.R
+import com.example.cvd_monitoring.presentation.Screen
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(
+    navController: NavHostController
+) {
     val image = painterResource(R.drawable.heart)
     Box(
         modifier = Modifier
@@ -65,7 +70,7 @@ fun WelcomeScreen() {
         }
         Column {
             Button(
-                onClick = { },
+                onClick = { navController.navigate(Screen.SignUp.route) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 400.dp), // Add bottom padding to move the button down
@@ -79,7 +84,7 @@ fun WelcomeScreen() {
             }
 
             Button(
-                onClick = { },
+                onClick = { navController.navigate(Screen.SignIn.route) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp), // Add bottom padding to move the button down
