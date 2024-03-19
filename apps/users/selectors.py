@@ -35,7 +35,7 @@ class PatientSelector(BaseSelectorService):
         return patient
 
 
-class DoctorSelector(BaseSelectorService):
+class DoctorSelector():
     @transaction.atomic
     def list(self) -> Iterable[DoctorProfile]:
         doctors = DoctorProfile.objects.all()
@@ -48,7 +48,7 @@ class DoctorSelector(BaseSelectorService):
         return doctor
 
 
-@transaction.atomic
-def card_list() -> Iterable[PatientCard]:
-    cards = PatientCard.objects.all()
-    return cards
+    @transaction.atomic
+    def card_list(self) -> Iterable[PatientCard]:
+        cards = PatientCard.objects.all()
+        return cards

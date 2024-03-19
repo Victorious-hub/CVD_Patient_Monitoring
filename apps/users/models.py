@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import uuid
 from django.db import models
 from django.utils.text import slugify
@@ -9,7 +10,6 @@ from apps.users.constansts import (
     BLOOD_TYPE, 
     GENDER,
     ROLES, 
-    SPECS,
 )
 
 
@@ -34,7 +34,7 @@ class PatientProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='patient')
     weight = models.FloatField(blank=True, null=True)
     height = models.IntegerField(blank=True, null=True)
-    gender = models.CharField(blank=True, null=True, max_length=255, choices=SPECS)
+    gender = models.CharField(blank=True, null=True, max_length=255, choices=GENDER, default="None")
     age = models.IntegerField(blank=True, null=True)
     birthday = models.DateField(blank=True, null=True)
     role = models.CharField(max_length=255, choices=ROLES, default='P', blank=True, null=True)
@@ -55,11 +55,30 @@ class PatientProfile(models.Model):
         return super(PatientProfile, self).save(*args, **kwargs)
 
 
+class PatientCard(models.Model):
+    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card', null=True)
+    blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
+    allergies = models.JSONField(default=list)
+    abnormal_conditions = models.TextField()
+    is_smoking = models.BooleanField(default=False)
+    is_alcohol = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        return self.patient.user.first_name
+    
+
+    class Meta:
+        verbose_name = "card"
+        verbose_name_plural = "cards"
+
+
 class DoctorProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='doctor')
     patients = models.ManyToManyField(PatientProfile, related_name='patients')
     role = models.CharField(max_length=255, choices=ROLES, default='D', null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    patient_cards = models.ManyToManyField(PatientCard, related_name='patients')
 
     class Meta:
         verbose_name = "doctor"
@@ -73,19 +92,3 @@ class DoctorProfile(models.Model):
         self.slug = slugify(slug_data)
         return super(DoctorProfile, self).save(*args, **kwargs)
 
-
-class PatientCard(models.Model):
-    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card', null=True)
-    blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
-    allergies = models.JSONField(max_length=255, choices=ALLERGIES)
-    abnormal_conditions = models.TextField()
-    is_smoking = models.BooleanField(default=False)
-    is_alcohol = models.BooleanField(default=False)
-    
-
-    def __str__(self):
-        return self.patient.user.first_name
-
-    class Meta:
-        verbose_name = "card"
-        verbose_name_plural = "cards"

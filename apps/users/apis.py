@@ -45,8 +45,10 @@ class PatientCreateApi(views.APIView):
             fields = ('user',)
 
     def post(self, request):
+        print(request.data)
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+       
         patient = PatientService(**serializer.validated_data)
         patient.create()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -202,6 +204,7 @@ class DoctorListApi(views.APIView):
 
     class OutputSerializer(serializers.ModelSerializer):
         patients = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=True)
+        patient_cards = serializers.PrimaryKeyRelatedField(queryset=PatientCard.objects.all(), many=True)
         user = inline_serializer(fields={
             'first_name': serializers.CharField(),
             'last_name': serializers.CharField(),
@@ -210,7 +213,7 @@ class DoctorListApi(views.APIView):
 
         class Meta:
             model = DoctorProfile
-            fields = ('user','patients',)
+            fields = ('user','patients','patient_cards',)
 
     def get(self, request):
         doctors = DoctorSelector() 
@@ -279,53 +282,55 @@ class DoctorPatientAddApi(views.APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class CardCreateApi(views.APIView):
-#     permission_classes = (IsDoctor,)
+class CardCreateApi(views.APIView):
+    #permission_classes = (IsDoctor,)
 
-#     class InputSerializer(serializers.ModelSerializer):
-#         patient = serializers.IntegerField()
-#         height = serializers.CharField()
-#         weight = serializers.CharField()
-#         is_smoking = serializers.ChoiceField(choices=SMOKE)
-#         is_alcohol = serializers.ChoiceField(choices=ALCO)
-#         age = serializers.IntegerField()
-#         blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
-#         allergies = serializers.ChoiceField(choices=ALLERGIES)
-#         ex_conditions = serializers.CharField()
+    class InputSerializer(serializers.ModelSerializer):
+        patient = serializers.IntegerField()
+        is_smoking = serializers.BooleanField()
+        is_alcohol = serializers.BooleanField()
+        blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
+        allergies = serializers.ChoiceField(choices=ALLERGIES)
+        abnormal_conditions = serializers.CharField()
+        allergies = serializers.JSONField()
 
-#         class Meta:
-#             model = PatientCard
-#             fields = '__all__'
+        class Meta:
+            model = PatientCard
+            fields = '__all__'
 
-#     def post(self, request, pk):
-#         serializer = self.InputSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         card_create(id=pk, **serializer.validated_data)
-#         return Response(serializer, status=status.HTTP_201_CREATED)
+    def post(self, request, slug):
+        serializer = self.InputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        doctor = DoctorService(**serializer.validated_data)
+        doctor.card_create(slug=slug)
+        return Response(status=status.HTTP_201_CREATED)
 
 
-# class CardListApi(views.APIView):
-#     permission_classes = (IsDoctor,)
+class CardListApi(views.APIView):
+    #permission_classes = (IsDoctor,)
 
-#     class OutputSerializer(serializers.ModelSerializer):
-#         patient = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=False)
-#         doctor_owners = serializers.PrimaryKeyRelatedField(queryset=doctor_list, many=False)
-#         height = serializers.CharField()
-#         weight = serializers.CharField()
-#         is_smoking = serializers.ChoiceField(choices=SMOKE)
-#         is_alcohol = serializers.ChoiceField(choices=ALCO)
-#         age = serializers.IntegerField()
-#         blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
-#         allergies = serializers.ChoiceField(choices=ALLERGIES)
-#         ex_conditions = serializers.CharField()
+    class OutputSerializer(serializers.ModelSerializer):
+        patient = inline_serializer(fields={
+            'user.first_name': serializers.CharField(),
+            'user.last_name': serializers.CharField(),
+            'user.email': serializers.EmailField(),
+            'age': serializers.IntegerField(),
+            'height': serializers.IntegerField(),
+            'weight': serializers.FloatField(),
+            'birthday': serializers.DateField
+        })
+        #patient = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=False)
+        is_smoking = serializers.BooleanField()
+        is_alcohol = serializers.BooleanField()
+        blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
+        allergies = serializers.JSONField()
+        abnormal_conditions = serializers.CharField()
 
-#         class Meta:
-#             model = PatientCard
-#             fields = '__all__'
+        class Meta:
+            model = PatientCard
+            fields = '__all__'
 
-#     def get(self, request):
-#         add.delay(2, 2)
-#         add(2, 2)
-#         patients = card_list()
-#         data = self.OutputSerializer(patients, many=True).data
-#         return Response(data, status=status.HTTP_200_OK)
+    def get(self, request):
+        patients = DoctorSelector()
+        data = self.OutputSerializer(patients.card_list(), many=True).data
+        return Response(data, status=status.HTTP_200_OK)

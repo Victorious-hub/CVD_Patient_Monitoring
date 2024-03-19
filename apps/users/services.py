@@ -102,9 +102,21 @@ class DoctorService:
     def __init__(self, 
                 user: CustomUser = None,
                 patients: List[int] = None,
+                patient: int = None,
+                is_smoking: bool = None,  
+                is_alcohol: bool = None,
+                abnormal_conditions: str = None,
+                allergies: dict = None,
+                blood_type: str = None
                 ):
         self.patients = patients
         self.user = user
+        self.patient = patient
+        self.is_smoking = is_smoking
+        self.is_alcohol = is_alcohol
+        self.abnormal_conditions = abnormal_conditions
+        self.allergies = allergies
+        self.blood_type = blood_type
     
     @transaction.atomic
     def create(self) -> DoctorProfile:
@@ -155,46 +167,34 @@ class DoctorService:
         return doctor
     
     @transaction.atomic
-    def card_create(*,
-                    id: int,
-                    patient: int,
-                    height: int,
-                    weight: int,
-                    blood_type: dict,
-                    allergies: dict,
-                    ex_conditions: str,
-                    is_smoking: str,
-                    is_alcohol: str,
-                    age: int
+    def card_create(self,
+                    slug: str,
                     ) -> PatientCard:
-
-        if not DoctorProfile.objects.filter(id=id).exists():
+        
+        if not DoctorProfile.objects.filter(slug=slug).exists():
             raise DoctorNotFound
 
-        if not PatientProfile.objects.filter(id=patient).exists():
+        if not PatientProfile.objects.filter(id=self.patient).exists():
             raise PatientNotFound
 
-        if PatientCard.objects.filter(id=patient).exists():
+        if PatientCard.objects.filter(patient=self.patient).exists():
             raise PatientCardExists
 
-        curr_doctor = DoctorProfile.objects.get(id=id)
-        curr_patient = PatientProfile.objects.get(id=patient)
-
+        curr_patient = PatientProfile.objects.get(id=self.patient)
+        doctor = get_object_or_404(DoctorProfile, slug=slug)
+ 
         patient_card = PatientCard.objects.create(
-            doctor_owners=curr_doctor,
+            abnormal_conditions = self.abnormal_conditions,
             patient=curr_patient,
-            height=height,
-            weight=weight,
-            blood_type=blood_type,
-            allergies=allergies,
-            ex_conditions=ex_conditions,
-            is_smoking=is_smoking,
-            is_alcohol=is_alcohol,
-            age=age
+            allergies=self.allergies,
+            is_smoking=self.is_smoking,
+            is_alcohol=self.is_alcohol,
+            blood_type=self.blood_type
         )
 
         patient_card.full_clean()
         patient_card.save()
+        doctor.patient_cards.add(patient_card) 
 
         return patient_card
     

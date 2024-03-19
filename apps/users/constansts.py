@@ -19,15 +19,15 @@ BLOOD_TYPE = (
 )
 
 ALLERGIES = (
-    ('Pollen', _('P')),
-    ('Peanuts', _('PN')),
-    ('Milk', _('M')),
-    ('Tree Nut', _('TN'))
+    ('pollen:pollen', _('P')),
+    ('peanuts:peanuts', _('PN')),
+    ('milk:milk', _('M'))
 )
 
 GENDER = (
     ('Male', _('M')),
     ('Female', _('F')),
+    ('None', _('N'))
 )
 
 SMOKE = (
