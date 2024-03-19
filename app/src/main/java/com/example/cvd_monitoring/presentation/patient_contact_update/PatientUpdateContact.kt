@@ -1,2 +1,0 @@
-package com.example.cvd_monitoring.presentation.patient_contact_update
-
