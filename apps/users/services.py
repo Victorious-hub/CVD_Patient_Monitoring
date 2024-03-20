@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 
 class PatientService:
     def __init__(self, 
-                user: CustomUser,
+                user: CustomUser = None,
                 weight: float = None, 
                 height: int = None,
                 gender: str = None,
@@ -61,11 +61,6 @@ class PatientService:
     @transaction.atomic
     def data_update(self, slug: str) -> PatientProfile:
         patient = get_object_or_404(PatientProfile, slug=slug)
-        curr_patient = patient.user
-        
-        curr_patient.first_name = self.user['first_name']
-        curr_patient.last_name = self.user['last_name']
-        curr_patient.save()
 
         patient.age = self.age
         patient.height = self.height
@@ -89,8 +84,10 @@ class PatientService:
         if PatientProfile.objects.filter(mobile=self.mobile).exists() and patient.slug != slug \
             or not re.match(pattern, self.mobile):
             raise MobileException
-        
+      
         patient.mobile = self.mobile
+        curr_patient.first_name = self.user['first_name']
+        curr_patient.last_name = self.user['last_name']
         curr_patient.email = self.user['email']
         curr_patient.save()
         patient.save()
@@ -103,20 +100,22 @@ class DoctorService:
                 user: CustomUser = None,
                 patients: List[int] = None,
                 patient: int = None,
-                is_smoking: bool = None,  
-                is_alcohol: bool = None,
+                smoke: float = None,  
+                alcohol: float = None,
                 abnormal_conditions: str = None,
                 allergies: dict = None,
-                blood_type: str = None
+                blood_type: str = None,
+                active: float = None
                 ):
         self.patients = patients
         self.user = user
         self.patient = patient
-        self.is_smoking = is_smoking
-        self.is_alcohol = is_alcohol
+        self.smoke = smoke
+        self.alcohol = alcohol
         self.abnormal_conditions = abnormal_conditions
         self.allergies = allergies
         self.blood_type = blood_type
+        self.active = active
     
     @transaction.atomic
     def create(self) -> DoctorProfile:
@@ -187,9 +186,10 @@ class DoctorService:
             abnormal_conditions = self.abnormal_conditions,
             patient=curr_patient,
             allergies=self.allergies,
-            is_smoking=self.is_smoking,
-            is_alcohol=self.is_alcohol,
-            blood_type=self.blood_type
+            smoke=self.smoke,
+            alcohol=self.alcohol,
+            blood_type=self.blood_type,
+            active=self.active
         )
 
         patient_card.full_clean()

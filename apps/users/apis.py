@@ -63,17 +63,13 @@ class PatientUpdateDataApi(views.APIView):
         age = serializers.IntegerField(),
         gender = serializers.ChoiceField(choices=GENDER)
         birthday = serializers.DateField(),
-        slug = serializers.CharField(),
-        user = inline_serializer(fields={
-            'first_name': serializers.CharField(),
-            'last_name': serializers.CharField(),
-        })
 
         class Meta:
             model = PatientProfile
-            fields = ('user', 'weight', 'height', 'gender', 'age', 'birthday', 'slug',)
+            fields = ( 'weight', 'height', 'gender', 'age', 'birthday')
 
     def put(self, request, slug):
+        print(request.data)
         serializer = self.InputSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         patient_service = PatientService(**serializer.validated_data)
@@ -86,6 +82,8 @@ class PatientUpdateContactApi(views.APIView):
 
     class InputSerializer(serializers.ModelSerializer):
         user = inline_serializer(fields={
+            'first_name': serializers.CharField(),
+            'last_name': serializers.CharField(),
             'email': serializers.EmailField(),
         })
         mobile =  serializers.CharField()
@@ -162,6 +160,7 @@ class PatientDetailApi(views.APIView):
         gender = serializers.ChoiceField(choices=GENDER)
         birthday = serializers.DateField(),
         slug = serializers.CharField(),
+        mobile = serializers.CharField(),
         user = inline_serializer(fields={
             'first_name': serializers.CharField(),
             'last_name': serializers.CharField(),
@@ -170,7 +169,7 @@ class PatientDetailApi(views.APIView):
 
         class Meta:
             model = PatientProfile
-            fields = ('user', 'weight', 'height', 'gender', 'age', 'birthday', 'slug',)
+            fields = ('user', 'weight', 'height', 'gender', 'age', 'birthday', 'slug', 'mobile',)
 
     def get(self, request, slug):
         patients = PatientSelector() 
@@ -287,12 +286,13 @@ class CardCreateApi(views.APIView):
 
     class InputSerializer(serializers.ModelSerializer):
         patient = serializers.IntegerField()
-        is_smoking = serializers.BooleanField()
-        is_alcohol = serializers.BooleanField()
+        smoke = serializers.FloatField()
+        alcohol = serializers.FloatField()
         blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
         allergies = serializers.ChoiceField(choices=ALLERGIES)
         abnormal_conditions = serializers.CharField()
         allergies = serializers.JSONField()
+        active = serializers.FloatField()
 
         class Meta:
             model = PatientCard
@@ -320,8 +320,9 @@ class CardListApi(views.APIView):
             'birthday': serializers.DateField
         })
         #patient = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=False)
-        is_smoking = serializers.BooleanField()
-        is_alcohol = serializers.BooleanField()
+        smoke = serializers.FloatField()
+        active = serializers.FloatField()
+        alcohol = serializers.FloatField()
         blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
         allergies = serializers.JSONField()
         abnormal_conditions = serializers.CharField()

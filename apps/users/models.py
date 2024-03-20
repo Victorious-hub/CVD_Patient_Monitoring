@@ -56,13 +56,13 @@ class PatientProfile(models.Model):
 
 
 class PatientCard(models.Model):
-    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card', null=True)
+    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card')
     blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
     allergies = models.JSONField(default=list)
     abnormal_conditions = models.TextField()
-    is_smoking = models.BooleanField(default=False)
-    is_alcohol = models.BooleanField(default=False)
-
+    smoke = models.FloatField()
+    alcohol = models.FloatField()
+    active = models.FloatField()
 
     def __str__(self):
         return self.patient.user.first_name
