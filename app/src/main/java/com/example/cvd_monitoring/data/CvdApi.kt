@@ -2,6 +2,8 @@ package com.example.cvd_monitoring.data
 
 import com.example.cvd_monitoring.domain.model.users.Auth
 import com.example.cvd_monitoring.domain.model.users.CreateUserRequest
+import com.example.cvd_monitoring.domain.model.users.Doctor
+import com.example.cvd_monitoring.domain.model.users.DoctorContact
 import com.example.cvd_monitoring.domain.model.users.Patient
 import com.example.cvd_monitoring.domain.model.users.PatientContact
 import com.example.cvd_monitoring.domain.model.users.PatientData
@@ -25,4 +27,9 @@ interface CvdApi {
     suspend fun updatePatientData(@Body patient: PatientData, @Path("slug") slug: String): PatientData
     @PUT("users/v1/patients/update/{slug}/contact")
     suspend fun updatePatientContact(@Body patient: PatientContact, @Path("slug") slug: String): PatientContact
+    @GET("users/v1/patients/{slug}/get")
+    suspend fun getCurrentUser(@Path("slug") slug: String): Patient
+    @PUT("users/v1/doctors/{slug/contact")
+    suspend fun updateDoctorContact(@Body doctor: DoctorContact, @Path("slug") slug: String): DoctorContact
+
 }

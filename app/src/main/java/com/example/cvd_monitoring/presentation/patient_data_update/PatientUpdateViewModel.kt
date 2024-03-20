@@ -3,21 +3,21 @@ package com.example.cvd_monitoring.presentation.patient_data_update
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cvd_monitoring.common.TextFieldState
 import com.example.cvd_monitoring.domain.model.users.PatientData
+import com.example.cvd_monitoring.domain.use_case.current_user.CurrentUserUseCase
 import com.example.cvd_monitoring.domain.use_case.patient_data.PatientDataUseCase
-import com.example.cvd_monitoring.utils.Constants
+import com.example.cvd_monitoring.presentation.CurrentUserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Provider
 
 @HiltViewModel
 class PatientUpdateViewModel @Inject constructor(
     private val patientDataUseCase: PatientDataUseCase,
+    private val currentUserUseCase: CurrentUserUseCase,
 ) : ViewModel() {
     private val _ageState = mutableStateOf(TextFieldState())
     val ageState: State<TextFieldState> = _ageState
@@ -53,6 +53,27 @@ class PatientUpdateViewModel @Inject constructor(
     fun setBirthdayValue(value: String) {
         _birthdayState.value = birthdayState.value.copy(text = value)
     }
+
+    private val _state = mutableStateOf(CurrentUserState())
+    val state: State<CurrentUserState> = _state
+
+    fun getCurrentUser(slug: String) {
+        viewModelScope.launch {
+            try {
+                val currentUser = currentUserUseCase(slug)
+                _state.value = CurrentUserState(currentUser)
+                state.value.patient?.let { setAgeValue(it.age.toString()) }
+                state.value.patient?.let { setHeightValue(it.height.toString()) }
+                state.value.patient?.let { setWeightValue(it.weight.toString()) }
+                state.value.patient?.let { setGenderValue(it.gender) }
+                state.value.patient?.let { setBirthdayValue(it.birthday) }
+            } catch (e: Exception) {
+                val errorMessage = e.message.toString()
+                Log.e("PatientListViewModel", errorMessage, e)
+            }
+        }
+    }
+
 
     fun updatePatientData(slug: String) {
         val age = ageState.value.text

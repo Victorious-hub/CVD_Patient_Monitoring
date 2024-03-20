@@ -3,6 +3,7 @@ package com.example.cvd_monitoring.data.repository
 import com.example.cvd_monitoring.data.CvdApi
 import com.example.cvd_monitoring.domain.model.users.Auth
 import com.example.cvd_monitoring.domain.model.users.CreateUserRequest
+import com.example.cvd_monitoring.domain.model.users.DoctorContact
 import com.example.cvd_monitoring.domain.model.users.Patient
 import com.example.cvd_monitoring.domain.model.users.PatientContact
 import com.example.cvd_monitoring.domain.model.users.PatientData
@@ -23,6 +24,14 @@ class PatientRepositoryImpl @Inject constructor(
 
     override suspend fun getPatients(): List<Patient> {
         return api.getPatients()
+    }
+
+    override suspend fun getCurrentUser(slug: String): Patient {
+        return api.getCurrentUser(slug)
+    }
+
+    override suspend fun updateDoctorContact(doctor: DoctorContact, slug: String): DoctorContact {
+        return api.updateDoctorContact(doctor, slug)
     }
 
     override suspend fun updatePatientContact(patient: PatientContact, slug: String): PatientContact {

@@ -28,7 +28,7 @@ fun PatientListScreen(
                 patient,
                 onItemClick = {
                     navController.navigate(
-                        Screen.UpdateDataPatient.route + "/${patient.slug}/data")
+                        Screen.UpdateContactDoctor.route + "/${patient.slug}/contact")
 
                 }
             )

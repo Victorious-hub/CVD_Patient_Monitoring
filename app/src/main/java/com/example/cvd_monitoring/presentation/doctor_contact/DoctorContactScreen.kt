@@ -1,4 +1,4 @@
-package com.example.cvd_monitoring.presentation.patient_contact_update
+package com.example.cvd_monitoring.presentation.doctor_contact
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,17 +24,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.cvd_monitoring.presentation.patient_data_update.PatientUpdateViewModel
-
+import com.example.cvd_monitoring.presentation.patient_contact_update.PatientContactViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientContactScreen(
+fun DoctorContactScreen(
     viewModel: PatientContactViewModel = hiltViewModel(),
     navController: NavController,
 ) {
@@ -46,8 +44,7 @@ fun PatientContactScreen(
 
     val firstNameState = viewModel.firstNameState.value
     val lastNameState = viewModel.lastNameState.value
-    val emailState  = viewModel.emailState.value
-    val mobileState  = viewModel.mobileState.value
+    val emailState = viewModel.emailState.value
 
     val isFocused by remember { mutableStateOf(false) }
     Column(
@@ -69,7 +66,7 @@ fun PatientContactScreen(
         )
         TextField(
             value = firstNameState.text,
-            onValueChange = {  viewModel.setFirstNameValue(it) },
+            onValueChange = { viewModel.setFirstNameValue(it) },
             label = {
                 Text(
                     text = "First Name",
@@ -121,24 +118,6 @@ fun PatientContactScreen(
                 cursorColor = Color.Red,
             ),
         )
-        TextField(
-            value = mobileState.text,
-            onValueChange = { viewModel.setMobileValue(it) },
-            label = {
-                Text(
-                    text = "Mobile",
-                    color = Color.Gray
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Red,
-                unfocusedIndicatorColor = if (isFocused) Color.Red else Color.Black,
-                cursorColor = Color.Red,
-            ),
-        )
 
         Button(
             onClick = {
@@ -154,5 +133,5 @@ fun PatientContactScreen(
             Text("Update")
         }
     }
-
 }
+

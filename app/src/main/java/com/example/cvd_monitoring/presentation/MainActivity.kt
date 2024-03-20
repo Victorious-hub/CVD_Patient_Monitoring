@@ -49,6 +49,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.cvd_monitoring.domain.model.users.Patient
+import com.example.cvd_monitoring.presentation.current_user.CurrentUserScreen
+import com.example.cvd_monitoring.presentation.doctor_contact.DoctorContactScreen
 import com.example.cvd_monitoring.presentation.patient_contact_update.PatientContactScreen
 import com.example.cvd_monitoring.presentation.patient_data_update.PatientUpdateScreen
 import com.example.cvd_monitoring.presentation.patient_list.PatientListScreen
@@ -87,10 +89,10 @@ class MainActivity : ComponentActivity() {
                     PatientListScreen(navController)
                 }
                 composable(
-                    route = "${Screen.UpdateDataPatient.route}/{slug}/data",
+                    route = "${Screen.UpdateContactDoctor.route}/{slug}/contact",
                     arguments = listOf(navArgument("slug") { type = NavType.StringType })
                 ) {
-                    PatientUpdateScreen(navController = navController)
+                    DoctorContactScreen(navController = navController)
                 }
 
 //                composable(

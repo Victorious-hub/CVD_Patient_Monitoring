@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,15 +42,18 @@ fun PatientUpdateScreen(
     viewModel: PatientUpdateViewModel = hiltViewModel(),
     navController: NavController,
 ) {
+    val slug = navController.currentBackStackEntry?.arguments?.getString("slug") ?: ""
+
+    LaunchedEffect(key1 = slug) {
+        viewModel.getCurrentUser(slug)
+    }
     val ageState = viewModel.ageState.value
     val heightState = viewModel.heightState.value
     val weightState  = viewModel.weightState.value
     val genderState  = viewModel.genderState.value
     val birthdayState  = viewModel.birthdayState.value
-    val slug = navController.currentBackStackEntry?.arguments?.getString("slug") ?: ""
 
     val isFocused by remember { mutableStateOf(false) }
-    Log.d("PatientListViewModel", "Suka: $slug")
     Column(
         modifier = Modifier
             .fillMaxSize()

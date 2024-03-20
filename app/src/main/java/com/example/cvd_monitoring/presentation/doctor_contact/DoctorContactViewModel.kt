@@ -1,4 +1,4 @@
-package com.example.cvd_monitoring.presentation.patient_contact_update
+package com.example.cvd_monitoring.presentation.doctor_contact
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -7,18 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cvd_monitoring.common.TextFieldState
 import com.example.cvd_monitoring.domain.use_case.current_user.CurrentUserUseCase
-import com.example.cvd_monitoring.domain.use_case.patient_contact.PatientContactUseCase
+import com.example.cvd_monitoring.domain.use_case.doctor_update.DoctorContactUseCase
 import com.example.cvd_monitoring.presentation.CurrentUserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class PatientContactViewModel @Inject constructor(
-    private val patientContactUseCase: PatientContactUseCase,
-    private val currentUserUseCase: CurrentUserUseCase,
-) : ViewModel(){
+class DoctorContactViewModel @Inject constructor(
+    private val doctorContactUseCase: DoctorContactUseCase,
+    private val currentUserUseCase: CurrentUserUseCase
+) : ViewModel() {
     private val _firstNameState = mutableStateOf(TextFieldState())
     val firstNameState: State<TextFieldState> = _firstNameState
 
@@ -66,15 +65,14 @@ class PatientContactViewModel @Inject constructor(
         }
     }
 
-    fun updatePatientContact(slug: String) {
+    fun updateDoctorContact(slug: String) {
         val firstName = firstNameState.value.text
         val lastName = lastNameState.value.text
         val email = emailState.value.text
-        val mobile = mobileState.value.text
 
         viewModelScope.launch {
             try {
-                val createdUser = patientContactUseCase(mobile, firstName, lastName, email, slug)
+                val createdUser = doctorContactUseCase(firstName, lastName, email, slug)
                 Log.d("SignUpViewModel", "Sign up successful: $createdUser")
             } catch (e: Exception) {
                 val errorMessage = e.message.toString()
