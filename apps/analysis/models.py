@@ -35,3 +35,7 @@ class CholesterolAnalysis(models.Model):
         verbose_name_plural = "cholesterol_invests"
 
 
+class ECGAnalysis(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE,
+                                          related_name='ecg_test')
+    
