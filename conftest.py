@@ -6,18 +6,18 @@ from faker import Factory as FakerFactory
 
 from collections import OrderedDict
 from apps.users.tests.factories import (
-    CardFactory, 
-    CustomUserFactory, 
-    CustomUserFactory1, 
-    DoctorFactory, 
+    CardFactory,
+    CustomUserFactory,
+    CustomUserFactory1,
+    DoctorFactory,
     PatientFactory
 )
-from apps.investigations.tests.factories import(
+from apps.investigations.tests.factories import (
     BloodInvestigationFactory,
     CholesterolInvestigationFactory,
     CustomTestFactory,
     CustomTestFactory1,
-    PatientFactoryBlood, 
+    PatientFactoryBlood,
     PatientFactoryCholesterol
 )
 faker = FakerFactory.create()

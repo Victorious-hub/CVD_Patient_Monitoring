@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .apis import (
     CardCreateApi,
     CardDetailApi,
@@ -15,7 +16,6 @@ from .apis import (
     PatientUpdateContactApi,
     PatientUpdateDataApi,
     PatientUpdatePasswordApi,
-    # PatientUpdatelApi
 )
 
 urlpatterns = [

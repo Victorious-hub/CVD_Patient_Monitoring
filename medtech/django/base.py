@@ -35,7 +35,7 @@ THIRD_PARTY_APPS = [
     'djoser',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'drf_spectacular', 
+    'drf_spectacular',
 ]
 
 INSTALLED_APPS = [
@@ -68,7 +68,7 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'apps.users.utils.custom_exception_handler',
     'DEFAULT_FILTER_BACKENDS': 'django_filters.rest_framework.DjangoFilterBackend',
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema', 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 ROOT_URLCONF = 'medtech.urls'
@@ -158,11 +158,11 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Medtech Patient App API", # название проекта
-    "VERSION": "0.0.1", # версия проекта
-    "SERVE_INCLUDE_SCHEMA": False, # исключить эндпоинт /schema
+    "TITLE": "Medtech Patient App API",  # название проекта
+    "VERSION": "0.0.1",  # версия проекта
+    "SERVE_INCLUDE_SCHEMA": False,  # исключить эндпоинт /schema
     "SWAGGER_UI_SETTINGS": {
-        "filter": True, # включить поиск по тегам
+        "filter": True,  # включить поиск по тегам
     },
     "COMPONENT_SPLIT_REQUEST": True
 }
