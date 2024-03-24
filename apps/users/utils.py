@@ -1,6 +1,7 @@
 from rest_framework.views import exception_handler
 from rest_framework import serializers
 
+
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
@@ -9,6 +10,7 @@ def custom_exception_handler(exc, context):
         response.data['status_code'] = response.status_code
 
     return response
+
 
 def create_serializer_class(name, fields):
     return type(name, (serializers.Serializer,), fields)

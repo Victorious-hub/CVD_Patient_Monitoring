@@ -1,7 +1,6 @@
 import random
 from apps.users.models import CustomUser, PatientProfile
 import factory
-import uuid
 from apps.investigations.models import BloodInvestigation, CholesterolInvestigtion
 from faker import Factory as FakerFactory
 
@@ -56,7 +55,7 @@ class PatientFactoryCholesterol(factory.django.DjangoModelFactory):
     user = factory.SubFactory(CustomTestFactory1)
     slug = factory.LazyAttribute(lambda obj: obj.user.email.split('@')[0])
     address = factory.LazyFunction(lambda: faker.sentence(nb_words=10))
-    
+
 
 class BloodInvestigationFactory(factory.django.DjangoModelFactory):
     class Meta:

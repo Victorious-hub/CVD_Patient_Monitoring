@@ -4,14 +4,14 @@ from apps.users.models import PatientProfile
 
 class BloodAnalysis(models.Model):
     glucose = models.FloatField()
-    ap_hi = models.IntegerField() # Systolic blood pressure
-    ap_lo = models.IntegerField() # Diastolic blood pressure
+    ap_hi = models.IntegerField()  # Systolic blood pressure
+    ap_lo = models.IntegerField()  # Diastolic blood pressure
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE,
-                                           related_name='blood_test')
+                                related_name='blood_test')
     date_created = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Patient blood analysis"
+        return f"Patient blood analysis: {self.patient}"
 
     class Meta:
         verbose_name = "blood_invest"
@@ -20,7 +20,7 @@ class BloodAnalysis(models.Model):
 
 class CholesterolAnalysis(models.Model):
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE,
-                                          related_name='cholesterol_test')
+                                related_name='cholesterol_test')
     cholesterol = models.FloatField()
     hdl_cholesterol = models.FloatField()
     ldl_cholesterol = models.FloatField()
@@ -28,7 +28,7 @@ class CholesterolAnalysis(models.Model):
     date_created = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return f"Patient cholesterol analysis"
+        return f"Patient cholesterol analysis: {self.patient}"
 
     class Meta:
         verbose_name = "cholesterol_invest"
@@ -37,5 +37,4 @@ class CholesterolAnalysis(models.Model):
 
 class ECGAnalysis(models.Model):
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE,
-                                          related_name='ecg_test')
-    
+                                related_name='ecg_test')

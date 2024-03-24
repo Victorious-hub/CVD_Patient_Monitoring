@@ -1,15 +1,12 @@
-from collections import OrderedDict
-import uuid
 from django.db import models
 from django.utils.text import slugify
 from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
 from apps.users.constansts import (
-    ALLERGIES,
-    BLOOD_TYPE, 
+    BLOOD_TYPE,
     GENDER,
-    ROLES, 
+    ROLES,
 )
 
 
@@ -47,7 +44,6 @@ class PatientProfile(models.Model):
 
     def __str__(self):
         return f"Patient: {self.user.first_name}"
-    
 
     def save(self, *args, **kwargs):
         slug_data = self.user.email.split('@')[0]
@@ -60,13 +56,12 @@ class PatientCard(models.Model):
     blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
     allergies = models.JSONField(default=list)
     abnormal_conditions = models.TextField()
-    smoke = models.FloatField()
-    alcohol = models.FloatField()
-    active = models.FloatField()
+    smoke = models.BooleanField()
+    alcohol = models.BooleanField()
+    active = models.BooleanField()
 
     def __str__(self):
         return self.patient.user.first_name
-    
 
     class Meta:
         verbose_name = "card"
@@ -91,4 +86,3 @@ class DoctorProfile(models.Model):
         slug_data = self.user.email.split('@')[0]
         self.slug = slugify(slug_data)
         return super(DoctorProfile, self).save(*args, **kwargs)
-
