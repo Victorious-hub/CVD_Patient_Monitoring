@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+
 from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
@@ -50,7 +51,6 @@ class PatientProfile(models.Model):
         self.slug = slugify(slug_data)
         return super(PatientProfile, self).save(*args, **kwargs)
 
-
 class PatientCard(models.Model):
     patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card')
     blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
@@ -59,6 +59,9 @@ class PatientCard(models.Model):
     smoke = models.BooleanField()
     alcohol = models.BooleanField()
     active = models.BooleanField()
+    # blood_analysis = models.ForeignKey(BloodAnalysis, related_name='blood')
+    # cholesterol_analysis = models.ManyToManyField(CholesterolAnalysis, related_name='cholesterol')
+    #desiase_history = models.ManyToManyField(DiseaseAnalysis)
 
     def __str__(self):
         return self.patient.user.first_name
@@ -73,7 +76,7 @@ class DoctorProfile(models.Model):
     patients = models.ManyToManyField(PatientProfile, related_name='patients')
     role = models.CharField(max_length=255, choices=ROLES, default='D', null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    patient_cards = models.ManyToManyField(PatientCard, related_name='patients')
+    patient_cards = models.ManyToManyField(PatientCard, related_name='patient_cards')
 
     class Meta:
         verbose_name = "doctor"
