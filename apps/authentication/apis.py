@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+
 class UserLogoutAPi(views.APIView):
     permission_classes = (IsDoctor | IsPatient,)
 
@@ -20,6 +21,7 @@ class UserLogoutAPi(views.APIView):
 
 class TokenObtainPairAPIView(TokenObtainPairView):
     serializer_class = TokenObtainPairSerializer
+
 
 class ObtainTokenAPIView(views.APIView):
     def post(self, request):
