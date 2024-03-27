@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 from .managers import CustomUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils import timezone
@@ -30,7 +30,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 class PatientProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='patient')
-    weight = models.FloatField(blank=True, null=True)
+    weight = models.FloatField(blank=True, null=True, validators=[
+        MinValueValidator(1),
+        MaxValueValidator(300)
+    ])
     height = models.IntegerField(blank=True, null=True)
     gender = models.CharField(blank=True, null=True, max_length=255, choices=GENDER, default="None")
     age = models.IntegerField(blank=True, null=True)
@@ -51,6 +54,7 @@ class PatientProfile(models.Model):
         self.slug = slugify(slug_data)
         return super(PatientProfile, self).save(*args, **kwargs)
 
+
 class PatientCard(models.Model):
     patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='patient_card')
     blood_type = models.CharField(max_length=255, choices=BLOOD_TYPE)
@@ -59,9 +63,6 @@ class PatientCard(models.Model):
     smoke = models.BooleanField()
     alcohol = models.BooleanField()
     active = models.BooleanField()
-    # blood_analysis = models.ForeignKey(BloodAnalysis, related_name='blood')
-    # cholesterol_analysis = models.ManyToManyField(CholesterolAnalysis, related_name='cholesterol')
-    #desiase_history = models.ManyToManyField(DiseaseAnalysis)
 
     def __str__(self):
         return self.patient.user.first_name
@@ -89,3 +90,16 @@ class DoctorProfile(models.Model):
         slug_data = self.user.email.split('@')[0]
         self.slug = slugify(slug_data)
         return super(DoctorProfile, self).save(*args, **kwargs)
+
+
+class Notification(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='patient_notification')
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='doctor_notification')
+    message = models.TextField()
+
+    class Meta:
+        verbose_name = "notification"
+        verbose_name_plural = "notifications"
+
+    def __str__(self):
+        return self.message

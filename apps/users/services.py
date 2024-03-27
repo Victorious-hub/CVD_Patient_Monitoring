@@ -1,13 +1,12 @@
 from datetime import datetime
-from typing import List
 import re
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
-from apps.users.models import DoctorProfile, PatientCard, PatientProfile, CustomUser
+from apps.users.models import DoctorProfile, PatientProfile, CustomUser
 from django.contrib.auth.hashers import make_password
-from apps.users.exceptions import DoctorNotFound, EmailException, MobileException, \
-    PasswordLengthException, PatientCardExists, PatientNotFound
+from apps.users.exceptions import EmailException, MobileException, \
+    PasswordLengthException
 
 
 class PatientService:
@@ -96,24 +95,10 @@ class PatientService:
 class DoctorService:
     def __init__(self,
                  user: CustomUser = None,
-                 patients: List[int] = None,
-                 patient: int = None,
-                 smoke: float = None,
-                 alcohol: float = None,
-                 abnormal_conditions: str = None,
-                 allergies: dict = None,
-                 blood_type: str = None,
-                 active: float = None
+                 patients: PatientProfile = None,
                  ):
         self.patients = patients
         self.user = user
-        self.patient = patient
-        self.smoke = smoke
-        self.alcohol = alcohol
-        self.abnormal_conditions = abnormal_conditions
-        self.allergies = allergies
-        self.blood_type = blood_type
-        self.active = active
 
     @transaction.atomic
     def create(self) -> DoctorProfile:
@@ -161,34 +146,12 @@ class DoctorService:
         return doctor
 
     @transaction.atomic
-    def card_create(self,
-                    slug: str,
-                    ) -> PatientCard:
-
-        if not DoctorProfile.objects.filter(slug=slug).exists():
-            raise DoctorNotFound
-
-        if not PatientProfile.objects.filter(id=self.patient).exists():
-            raise PatientNotFound
-
-        if PatientCard.objects.filter(patient=self.patient).exists():
-            raise PatientCardExists
-
-        curr_patient = PatientProfile.objects.get(id=self.patient)
+    def patient_remove(self, slug: str) -> DoctorProfile:
         doctor = get_object_or_404(DoctorProfile, slug=slug)
+        patient = self.patients
 
-        patient_card = PatientCard.objects.create(
-            abnormal_conditions=self.abnormal_conditions,
-            patient=curr_patient,
-            allergies=self.allergies,
-            smoke=self.smoke,
-            alcohol=self.alcohol,
-            blood_type=self.blood_type,
-            active=self.active
-        )
+        if patient in doctor.patients.all():
+            doctor.patients.remove(patient)
+            doctor.save()
 
-        patient_card.full_clean()
-        patient_card.save()
-        doctor.patient_cards.add(patient_card)
-
-        return patient_card
+        return doctor

@@ -1,13 +1,11 @@
 from django.urls import path
 
 from .apis import (
-    CardCreateApi,
-    CardDetailApi,
-    CardListApi,
     DoctorCreateApi,
     DoctorDetailApi,
     DoctorListApi,
     DoctorPatientAddApi,
+    DoctorPatientDeleteApi,
     DoctorUpdateApi,
     HelloWorldView,
     PatientCreateApi,
@@ -35,8 +33,5 @@ urlpatterns = [
     path('v1/doctors/<str:slug>/get', DoctorDetailApi.as_view(), name='get_doctor'),
     path('v1/doctors/<str:slug>/contact', DoctorUpdateApi.as_view(), name='contact_doctor_update'),
     path('v1/doctors/patient/<str:slug>/update', DoctorPatientAddApi.as_view(), name='add_doctor_patient_list'),
-
-    path('v1/patients/card/<str:slug>', CardCreateApi.as_view(), name='fill_patient_card'),
-    path('v1/patient/card', CardListApi.as_view(), name='patient_cards'),
-    path('v1/patient/card/<str:slug>', CardDetailApi.as_view(), name="patient_card")
+    path('v1/doctors/patient/<str:slug>/delete', DoctorPatientDeleteApi.as_view(), name='delete_patient')
 ]

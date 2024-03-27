@@ -10,6 +10,7 @@ from rest_framework import status
 from apps.users.selectors import DoctorSelector, PatientSelector
 from apps.users.utils import inline_serializer
 
+
 class PatientBloodCreateApi(views.APIView):
     class InputSerializer(serializers.ModelSerializer):
         patient_card = serializers.PrimaryKeyRelatedField(queryset=PatientCard.objects.all(), many=False)
@@ -19,7 +20,7 @@ class PatientBloodCreateApi(views.APIView):
 
         class Meta:
             model = BloodAnalysis
-            fields = ('patient_card','glucose', 'ap_hi', 'ap_lo',)
+            fields = ('patient_card', 'glucose', 'ap_hi', 'ap_lo',)
 
     def post(self, request, slug):
         serializer = self.InputSerializer(data=request.data)
@@ -43,7 +44,7 @@ class PatientBloodListeApi(views.APIView):
 
         class Meta:
             model = BloodAnalysis
-            fields = ('patient','glucose', 'ap_hi', 'ap_lo',)
+            fields = ('patient', 'glucose', 'ap_hi', 'ap_lo',)
 
     def get(self, request):
         patient_blood = AnalysisSelector()
@@ -65,11 +66,11 @@ class PatientBloodDetailApi(views.APIView):
 
         class Meta:
             model = BloodAnalysis
-            fields = ('patient','glucose', 'ap_hi', 'ap_lo',)
+            fields = ('patient', 'glucose', 'ap_hi', 'ap_lo',)
 
     def get(self, request, slug):
         patient_blood = AnalysisSelector()
-        data = self.OutputSerializer(patient_blood.get(slug)).data
+        data = self.OutputSerializer(patient_blood.get_blood_analyses(slug)).data
         return Response(data, status=status.HTTP_200_OK)
 
 
@@ -84,7 +85,7 @@ class PatientCholesterolCreateApi(views.APIView):
 
         class Meta:
             model = CholesterolAnalysis
-            fields = ('patient_card','cholesterol', 'hdl_cholesterol', 'ldl_cholesterol','triglycerides',)
+            fields = ('patient_card', 'cholesterol', 'hdl_cholesterol', 'ldl_cholesterol', 'triglycerides',)
 
     def post(self, request, slug):
         serializer = self.InputSerializer(data=request.data)
@@ -92,6 +93,29 @@ class PatientCholesterolCreateApi(views.APIView):
         patient = AnalysisService(**serializer.validated_data)
         patient.create_cholesterol_analysis(slug)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class PatientCholesterolDetailApi(views.APIView):
+
+    class OutputSerializer(serializers.ModelSerializer):
+        patient = inline_serializer(fields={
+            'patient.user.first_name': serializers.CharField(),
+            'patient.user.last_name': serializers.CharField(),
+            'patient.user.email': serializers.EmailField(),
+        })
+        cholesterol = serializers.FloatField()
+        hdl_cholesterol = serializers.FloatField()
+        ldl_cholesterol = serializers.FloatField()
+        triglycerides = serializers.FloatField()
+
+        class Meta:
+            model = BloodAnalysis
+            fields = ('patient', 'cholesterol', 'hdl_cholesterol', 'ldl_cholesterol', 'triglycerides',)
+
+    def get(self, request, slug):
+        patient_blood = AnalysisSelector()
+        data = self.OutputSerializer(patient_blood.get_cholesterol_analyses(slug)).data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class CardCreateApi(views.APIView):
@@ -181,11 +205,10 @@ class CardDetailApi(views.APIView):
 class DiseaseCreateApi(views.APIView):
     class InputSerializer(serializers.ModelSerializer):
         patient_card = serializers.PrimaryKeyRelatedField(queryset=PatientCard.objects.all(), many=False)
-        anomaly = serializers.BooleanField()
 
         class Meta:
             model = DiseaseAnalysis
-            fields = ('patient_card','anomaly',)
+            fields = ('patient_card', 'anomaly',)
 
     def post(self, request, slug):
         serializer = self.InputSerializer(data=request.data)
@@ -196,7 +219,7 @@ class DiseaseCreateApi(views.APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class DiseaseListApi(views.APIView):
+class DiseaseDoctorDetailApi(views.APIView):
     class OutputSerializer(serializers.ModelSerializer):
         patient = inline_serializer(fields={
             'patient.user.first_name': serializers.CharField(),
@@ -218,9 +241,9 @@ class DiseaseListApi(views.APIView):
 
         class Meta:
             model = DiseaseAnalysis
-            fields = ('patient','anomaly','blood_analysis', 'cholesterol_analysis',)
+            fields = ('patient', 'anomaly', 'blood_analysis', 'cholesterol_analysis',)
 
-    def get(self, request):
+    def get(self, request, slug):
         patients = AnalysisSelector()
-        data = self.OutputSerializer(patients.list_disease(), many=True).data
+        data = self.OutputSerializer(patients.list_disease(slug), many=True).data
         return Response(data, status=status.HTTP_200_OK)

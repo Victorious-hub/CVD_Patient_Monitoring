@@ -4,7 +4,7 @@ from rest_framework import views
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import serializers
-from apps.users.constansts import ALLERGIES, BLOOD_TYPE, GENDER
+from apps.users.constansts import GENDER
 from apps.users.services import (
     DoctorService,
     PatientService,
@@ -278,86 +278,17 @@ class DoctorPatientAddApi(views.APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CardCreateApi(views.APIView):
-    # permission_classes = (IsDoctor,)
-
+class DoctorPatientDeleteApi(views.APIView):
     class InputSerializer(serializers.ModelSerializer):
-        patient = serializers.IntegerField()
-        smoke = serializers.BooleanField()
-        alcohol = serializers.BooleanField()
-        blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
-        allergies = serializers.ChoiceField(choices=ALLERGIES)
-        abnormal_conditions = serializers.CharField()
-        allergies = serializers.JSONField()
-        active = serializers.BooleanField()
+        patients = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=False)
 
         class Meta:
-            model = PatientCard
-            fields = '__all__'
+            model = DoctorProfile
+            fields = ('patients',)
 
-    def post(self, request, slug):
+    def delete(self, request, slug):
         serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         doctor = DoctorService(**serializer.validated_data)
-        doctor.card_create(slug=slug)
-        return Response(status=status.HTTP_201_CREATED)
-
-
-class CardListApi(views.APIView):
-    # permission_classes = (IsDoctor,)
-
-    class OutputSerializer(serializers.ModelSerializer):
-        patient = inline_serializer(fields={
-            'user.first_name': serializers.CharField(),
-            'user.last_name': serializers.CharField(),
-            'user.email': serializers.EmailField(),
-            'age': serializers.IntegerField(),
-            'height': serializers.IntegerField(),
-            'weight': serializers.FloatField(),
-            'birthday': serializers.DateField
-        })
-        # patient = serializers.PrimaryKeyRelatedField(queryset=PatientProfile.objects.all(), many=False)
-        smoke = serializers.FloatField()
-        active = serializers.FloatField()
-        alcohol = serializers.FloatField()
-        blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
-        allergies = serializers.JSONField()
-        abnormal_conditions = serializers.CharField()
-
-        class Meta:
-            model = PatientCard
-            fields = '__all__'
-
-    def get(self, request):
-        patients = DoctorSelector()
-        data = self.OutputSerializer(patients.card_list(), many=True).data
-        return Response(data, status=status.HTTP_200_OK)
-
-
-class CardDetailApi(views.APIView):
-
-    class OutputSerializer(serializers.ModelSerializer):
-        patient = inline_serializer(fields={
-            'user.first_name': serializers.CharField(),
-            'user.last_name': serializers.CharField(),
-            'user.email': serializers.EmailField(),
-            'age': serializers.IntegerField(),
-            'height': serializers.IntegerField(),
-            'weight': serializers.FloatField(),
-            'birthday': serializers.DateField
-        })
-        smoke = serializers.FloatField()
-        active = serializers.FloatField()
-        alcohol = serializers.FloatField()
-        blood_type = serializers.ChoiceField(choices=BLOOD_TYPE)
-        allergies = serializers.JSONField()
-        abnormal_conditions = serializers.CharField()
-
-        class Meta:
-            model = PatientCard
-            fields = '__all__'
-
-    def get(self, request, slug):
-        patients = PatientSelector()
-        data = self.OutputSerializer(patients.get_card(slug=slug)).data
-        return Response(data, status=status.HTTP_200_OK)
+        doctor.patient_remove(slug=slug)
+        return Response(status=status.HTTP_204_NO_CONTENT)
