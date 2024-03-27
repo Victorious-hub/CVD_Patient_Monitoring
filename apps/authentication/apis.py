@@ -1,4 +1,4 @@
-from rest_framework import views, serializers, status
+from rest_framework import views, status
 from rest_framework.response import Response
 from apps.users.permissions import IsDoctor, IsPatient
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,4 +28,5 @@ class ObtainTokenAPIView(views.APIView):
         serializer = TokenObtainPairSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         token_data = serializer.validated_data
+        print(token_data['access'])
         return Response(token_data)
