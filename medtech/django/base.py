@@ -24,8 +24,9 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379'
 
 LOCAL_APPS = [
     'apps.users.apps.UsersConfig',
-    'apps.investigations.apps.InvestigationsConfig',
     'apps.authentication.apps.AuthenticationConfig',
+    'apps.analysis.apps.AnalysisConfig',
+    'apps.notifications.apps.NotificationsConfig',
 ]
 
 THIRD_PARTY_APPS = [

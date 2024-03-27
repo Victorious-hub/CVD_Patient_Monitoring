@@ -1,9 +1,9 @@
-from rest_framework import views
-from rest_framework import status
+from rest_framework import views, serializers, status
 from rest_framework.response import Response
 from apps.users.permissions import IsDoctor, IsPatient
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class UserLogoutAPi(views.APIView):
     permission_classes = (IsDoctor | IsPatient,)
@@ -16,3 +16,14 @@ class UserLogoutAPi(views.APIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class TokenObtainPairAPIView(TokenObtainPairView):
+    serializer_class = TokenObtainPairSerializer
+
+class ObtainTokenAPIView(views.APIView):
+    def post(self, request):
+        serializer = TokenObtainPairSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token_data = serializer.validated_data
+        return Response(token_data)
